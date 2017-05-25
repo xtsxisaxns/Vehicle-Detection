@@ -1,7 +1,6 @@
 # Vehicle-Detection-Project-Carnd
 
-##Introduction
-
+## Introduction
 This project comes from udacity self-driving-car nanodegree.The goal is develop a software pipeline to detect vehicles in 
 image and video.The steps of the detection are:
 * Perform a Histogram of Oriententad Gradient(HOG) feature extraction on a labeled training set of images and train a Linear 
@@ -14,7 +13,9 @@ for training and testing.
 * Run detection pipeline on video.There must be a lot wrong detection bboxes.So create a heat map of recurring detections frame 
 by frame to reject outliers and follow detected vehicles.
 
-
+## Histogram of Oriented Gradients (HOG)
+Apply hog feature extraction to the training dataset.here we use hog extraction method in skimage.[Here is skimage hog link](http://scikit-image.org/docs/dev/auto_examples/features_detection/plot_hog.html).The hog images of car and non-car are:
+![](https://github.com/nicholas-tien/Vehicle-Detection-Project-Carnd/blob/master/examples/hog.png?raw=true)
 
 
 
