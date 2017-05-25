@@ -32,6 +32,21 @@ classify it.After this,we'll get some windows that may have a car in it.A detect
 ![](https://github.com/nicholas-tien/Vehicle-Detection-Project-Carnd/blob/master/examples/hot_window.png?raw=true)
 
 
+## Filter wrong detections
+From the above hot_windows images,we can see that there are some wrong detections.To filter them out,a heatmap method and threshold filter is used.In a single image,only apply threshold.In video,last n frames are took into account.When a new frame 
+is processed.The oldest is passed out.In video processing,a threshold of n is used.Because wrong detections rarely appear all the time,this can filter some wrong detections.Some process images as follows:
+![](https://github.com/nicholas-tien/Vehicle-Detection-Project-Carnd/blob/master/examples/heatmap.png?raw=true)
+![](https://github.com/nicholas-tien/Vehicle-Detection-Project-Carnd/blob/master/examples/heatmap_threshod.png?raw=true)
+![](https://github.com/nicholas-tien/Vehicle-Detection-Project-Carnd/blob/master/examples/detection.png?raw=true)
+
+
+
+
+
+
+
+
+
 
 
 
