@@ -27,7 +27,9 @@ For a better result,training images are converted to HLS color space.All three c
 ## Sliding window search
 We use four sliding windows of different size.Sliding window first slides from left side to right side  of the image.Then slides from top to down.The overlap percentage of adjacent Windows is 0.75.By sliding window strategy,we can get a lot of 
 windows.Get the roi image of each window positon,resize the roi image to (64,64,3).Use the tarined LinearSVC classifer to 
-classify it.After this,we'll get some windows that may have a car in it.A detection result is:
+classify it.After this,we'll get some windows that may have a car in it.
+[A nice sliding window tutorial is here](http://www.pyimagesearch.com/2015/03/23/sliding-windows-for-object-detection-with-python-and-opencv/)
+A detection result is:
 ![](https://github.com/nicholas-tien/Vehicle-Detection-Project-Carnd/blob/master/examples/all_window.png?raw=true)
 ![](https://github.com/nicholas-tien/Vehicle-Detection-Project-Carnd/blob/master/examples/hot_window.png?raw=true)
 
