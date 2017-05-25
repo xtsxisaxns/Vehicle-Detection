@@ -1,6 +1,7 @@
 # Vehicle-Detection-Project-Carnd
 
 ##Introduction
+
 This project comes from udacity self-driving-car nanodegree.The goal is develop a software pipeline to detect vehicles in 
 image and video.The steps of the detection are:
 * Perform a Histogram of Oriententad Gradient(HOG) feature extraction on a labeled training set of images and train a Linear 
