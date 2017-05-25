@@ -32,7 +32,7 @@ print('The number of cars images: ',len(cars))
 print('The number of no-cars images',len(nocars))
 
 
-# In[3]:
+# In[5]:
 
 #visualize some data
 fig,axs = plt.subplots(4,4,figsize=(8,8))
@@ -52,6 +52,15 @@ for i in np.arange(8,16):
     axs[i].axis('off')
     axs[i].set_title('no-car',fontsize=10)
     axs[i].imshow(img)
+
+
+# In[3]:
+
+#Define a function to extract binned color features 
+def bin_spatial(img,size=(32,32)):
+    #Use cv2.resize().ravel() to create the feature vector 
+    features = cv2.resize(img,size).ravel()
+    return features
 
 
 # In[4]:
@@ -77,35 +86,6 @@ def get_hog_feature(img,orient,pix_per_cell,cell_per_block,vis=False,feature_vec
 
 # In[5]:
 
-# skimage hog test
-hog_feat = True
-color_space = 'HLS'
-orient = 11
-pix_per_cell = 9
-cell_per_block = 2
-hog_channel = 'ALL'
-
-myimg = mpimage.imread(test_imgs[0])
-myimg = myimg[1:65,1:65,0]
-
-hog_feature = hog(myimg,orientations=11,pixels_per_cell=(9,9),cells_per_block=(2,2),
-                                 transform_sqrt=True,visualise=False,feature_vector=True)
-print(myimg.shape)
-print(hog_feature.shape)
-    
-
-
-# In[6]:
-
-#Define a function to extract binned color features 
-def bin_spatial(img,size=(32,32)):
-    #Use cv2.resize().ravel() to create the feature vector 
-    features = cv2.resize(img,size).ravel()
-    return features
-
-
-# In[7]:
-
 #Define a function to compute color histogram features
 def color_hist(img,nbins=32,bins_range=(0,256)):
     #Compute the histogram of the color channels separately
@@ -119,7 +99,7 @@ def color_hist(img,nbins=32,bins_range=(0,256)):
     
 
 
-# In[8]:
+# In[6]:
 
 #Define a funcion to extract features from an image,include binned color feature,color histogram feature and hog feature
 def extract_features(img,color_space='RGB',spatial_size=(32,32),
@@ -128,7 +108,6 @@ def extract_features(img,color_space='RGB',spatial_size=(32,32),
                                     spatial_feat=True,hist_feat=True,hog_feat=True):
     #Create a list to append feature vectors to
     features = []
-    
     # Apply color conversion if other color space than 'RGB
     if color_space != 'RGB':
         if color_space == 'HSV':
@@ -143,9 +122,6 @@ def extract_features(img,color_space='RGB',spatial_size=(32,32),
             feature_img = cv2.cvtColor(img,cv2.COLOR_RGB2YCrCb)
     else:
         feature_img = np.copy(img)
-    
-    #For debug
-#     flag = True
       
     
     # Add spatial feature or not
@@ -184,13 +160,17 @@ def extract_features(img,color_space='RGB',spatial_size=(32,32),
     
 
 
-# In[9]:
+# In[48]:
 
 #Visualize HOG feature of car image and non-car image
 car_img = cv2.imread(cars[np.random.randint(0,len(cars))])
 car_img = cv2.cvtColor(car_img,cv2.COLOR_BGR2RGB)
 # car_img = mpimage.imread(cars[np.random.randint(0,len(cars))])
-_,car_hog_img = get_hog_feature(car_img[:,:,0],9,8,2,vis=True,feature_vec=True)
+# def get_hog_feature(img,orient,pix_per_cell,cell_per_block,vis=False,feature_vec=True):
+orient = 9
+pix_per_cell = 8
+cell_per_block = 2
+_,car_hog_img = get_hog_feature(car_img[:,:,0],orient,pix_per_cell,cell_per_block,vis=True,feature_vec=True)
 
 no_car_img = cv2.imread(nocars[np.random.randint(0,len(nocars))])
 no_car_img = cv2.cvtColor(no_car_img,cv2.COLOR_BGR2RGB)
@@ -210,16 +190,17 @@ axs[2].imshow(no_car_img)
 axs[2].set_title('no car image',fontsize=10)
 axs[3].imshow(no_car_hog_img,cmap='gray')
 axs[3].set_title('no car hog image',fontsize=10)
+plt.savefig('./examples/'+'hog.png')
 
 
-# In[10]:
+# In[12]:
 
 #Extract all the images features.Shuffle and split
 #HOG parameters setting
 hog_feat = True
 color_space = 'HLS'
-orient = 11
-pix_per_cell = 9
+orient = 9
+pix_per_cell = 8
 cell_per_block = 2
 hog_channel = 'ALL'
 
@@ -282,7 +263,7 @@ print('The length of training dataset: ',len(x_train))
 print('The length of test datast',len(y_train))
 
 
-# In[11]:
+# In[13]:
 
 #Create a linear classifier
 svc = LinearSVC()
@@ -307,7 +288,7 @@ t2 = time.time()
 print(round(t2-t1,2),' seconds used to pridicet ',num_predict,' samples')
 
 
-# In[12]:
+# In[14]:
 
 #Random Test SVC Acuracy
 idx = np.random.randint(len(x_test),size=40)
@@ -319,7 +300,7 @@ print(np.equal(svc.predict(x_train[idx]),y_train[idx]))
 # print('Accuracy is: ',np.mean(np.sum(np.equal(svc.predict(idx),y_train[idx]))))
 
 
-# In[13]:
+# In[15]:
 
 #Save data and trained SVC model
 pickle_file = 'train_test_data.p'
@@ -351,7 +332,7 @@ except Exception as e:
 print('SVC saved')
 
 
-# In[14]:
+# In[16]:
 
 #Explore the test image
 test_imgs = glob.glob('./test_images/*.jpg')
@@ -365,7 +346,7 @@ plt.imshow(test_img)
 print('Image dtype:',test_img.dtype)
 
 
-# In[225]:
+# In[17]:
 
 # Define a function that takes an image,
 # start and stop positions in both x and y, 
@@ -415,13 +396,7 @@ def slide_window(img,x_start_stop=[None,None],y_start_stop=[None,None],
        
 
 
-# In[226]:
-
-#For debug 
-pre_true = 0
-
-
-# In[227]:
+# In[18]:
 
 # Define a function you will pass an image 
 # and the list of windows to be searched (output of slide_windows())
@@ -432,45 +407,37 @@ def search_windows(img,windows,clf,scaler,color_space='RGB',
                                   hist_feat=True,hog_feat=True):
     #Create an empty list to receive positive detection windows
     on_windows = []
-    
-    #For debug 
-    flag = True
-        
     #Iterate over all windows in the list
     for window in windows:
         # Resize the ROI image 
         roi_img = cv2.resize(img[window[0][1]:window[1][1],window[0][0]:window[1][0]],(64,64))
         # Extract features for the resized ROI window
         roi_features = extract_features(roi_img,color_space=color_space,
-                                                   spatial_size=spatial_size,hist_bins=hist_bins,
+                                                   spatial_size=spatial_size,hist_bins=hist_bins,orient=orient,
                                                    pix_per_cell=pix_per_cell,cell_per_block=cell_per_block,
                                                    hog_channel=hog_channel,spatial_feat=spatial_feat,
                                                    hist_feat=hist_feat,hog_feat=hog_feat)
         # Use sklearn.StandardScaler to transform the features
         roi_features = scaler.transform(np.array(roi_features).reshape(1,-1))
         
-#         print('Shape of roi_features : ',roi_features.shape)
-#         roi_features = scaler.transform(roi_features)
+        #         print('Shape of roi_features : ',roi_features.shape)
+        #         roi_features = scaler.transform(roi_features)
         #Predict using svc classifier
         
         prediction = clf.predict(roi_features)
         
         if prediction == 1 :
             on_windows.append(window)
-            global pre_true
-            pre_true += 1
-#             plt.figure()
-#             plt.imshow(roi_img)
         
     #Return windows for positive detections
     return on_windows
         
 
 
-# In[228]:
+# In[19]:
 
 #Define a function to search windows in a full image,get all the windows that may have a car
-def search_all_scales(img,classifier=None):
+def search_all_scales(img,classifier,scaler,color_space,spatial_size,hist_bins,orient,pix_per_cell,cell_per_block):
     hot_windows = []
     all_windows = []
     
@@ -482,28 +449,34 @@ def search_all_scales(img,classifier=None):
     window_size = [(w0,w0),(w1,w1),(w2,w2),(w3,w3)]
     overlap_size = [(o0,o0),(o1,o1),(o2,o2),(o3,o3)]
     yi0,yi1,yi2,yi3 = 380,380,395,405
-#     yi0,yi1,yi2,yi3 = 350,350,380,380
     y_start_stop = [[yi0,yi0+w0/2],[yi1,yi1+w1/2],[yi2,yi2+w2/2],[yi3,yi3+w3/2]]
-#     y_start_stop = [[yi0,yi0+w0],[yi1,yi1+w1],[yi2,yi2+w2],[yi3,yi3+w3]]
     
     for i in range(len(y_start_stop)):
         windows = slide_window(img,x_start_stop=x_start_stop[i],y_start_stop=y_start_stop[i],
                                               window_size=window_size[i],overlap_size=overlap_size[i])
         all_windows += [windows]
-#         print('in search all scale:',type(classifier))
+    #         print('in search all scale:',type(classifier))
+    # def search_windows(img,windows,clf,scaler,color_space='RGB',
+    #                                   spatial_size=(16,16),hist_bins=32,
+    #                                   hist_range=(0,256),orient=11,pix_per_cell=9,cell_per_block=2,
+    #                                   hog_channel=0,spatial_feat=True,
+    #                                   hist_feat=True,hog_feat=True):
+        
         hot_windows += search_windows(img,windows,classifier,scaler,color_space=color_space,
                                                          spatial_size=spatial_size,hist_bins=hist_bins,
                                                          orient=orient,pix_per_cell=pix_per_cell,
                                                          cell_per_block=cell_per_block,
                                                          hog_channel=hog_channel,spatial_feat=spatial_feat,
                                                          hist_feat=hist_feat,hog_feat=hog_feat)
+    
+    print('in search all scales, len of hot windows:',len(hot_windows))
         
     return hot_windows,all_windows      
     
         
 
 
-# In[229]:
+# In[20]:
 
 # Draw bounding boxes function
 def draw_boxes(img,bboxes,color=(0,0,255),thick=6):
@@ -514,13 +487,13 @@ def draw_boxes(img,bboxes,color=(0,0,255),thick=6):
     return imcopy
 
 
-# In[230]:
+# In[51]:
 
 #HOG parameters setting
 hog_feat = True
 color_space = 'HLS'
-orient = 11
-pix_per_cell = 9
+orient = 9
+pix_per_cell = 8
 cell_per_block = 2
 hog_channel = 'ALL'
 
@@ -539,27 +512,28 @@ svc = data['svc']
 
 test_imgs = glob.glob('./test_images/*.jpg')
 
-test_img1 = mpimage.imread(test_imgs[2])
+test_img1 = mpimage.imread(test_imgs[1])
 
 test_img_float = test_img1.astype(np.float32)/255
 # plt.imshow(mpimage.imread(test_imgs[0]))
-
-hot_windows,all_windows = search_all_scales(test_img_float,classifier=svc)
-print(len(all_windows))
+# def search_all_scales(img,classifier,scaler,color_space,spatial_size,hist_bins,orient,pix_per_cell,cell_per_block):
+hot_windows,all_windows = search_all_scales(test_img_float,svc,scaler,
+                                            color_space,spatial_size,hist_bins,orient,pix_per_cell,cell_per_block)
+print('Number of all windows: ',len(all_windows))
 # print(all_windows[0])
 # allwindows_img =np.int32(np.copy(test_img1)) 
 # print(allwindows_img[:1,:1,:])
 print('len of hot windows: ',len(hot_windows))
 print('number of all windows: ',len(all_windows[0])+len(all_windows[1])+len(all_windows[2])+len(all_windows[3]))
-print('pre_true: ',pre_true)
 
-plt.imshow(test_img1)
+# plt.imshow(test_img1)
 
 window_img = np.copy(test_img1)
 window_img = draw_boxes(window_img, hot_windows, color=(0, 0, 255), thick=4)          
 plt.figure()
 plt.imshow(window_img)
 plt.title('hot windows')
+plt.savefig('./examples/'+'hot_window.png')
 
 allwindows_img = np.copy(test_img1)
 for ind,win_list in enumerate(all_windows):
@@ -574,6 +548,7 @@ for ind,win_list in enumerate(all_windows):
 plt.figure()
 plt.imshow(allwindows_img)
 plt.title('all windows')
+plt.savefig('./examples/'+'all_window.png')
 
 
 # In[ ]:
@@ -581,7 +556,7 @@ plt.title('all windows')
 
 
 
-# In[231]:
+# In[22]:
 
 #Heatmap
 #Heatmap is used to filter wrong boxes
@@ -593,46 +568,49 @@ def add_heat(heatmap,bboxes):
     return heatmap
 
 
-# In[236]:
+# In[52]:
 
 # Test add_heat function
-test_imgs = glob.glob('./test_images/*.jpg')
-test_img1 = mpimage.imread(test_imgs[3])
-
-test_img_float = test_img1.astype(np.float32)/255
-hot_windows,all_windows = search_all_scales(test_img_float,classifier=svc)
+# test_imgs = glob.glob('./test_images/*.jpg')
+# test_img1 = mpimage.imread(test_imgs[1])
+# test_img_float = test_img1.astype(np.float32)/255
+# # hot_windows,all_windows = search_all_scales(test_img_float,classifier=svc)
+# hot_windows,all_windows = search_all_scales(test_img_float,svc,scaler,
+#                                             color_space,spatial_size,hist_bins,orient,pix_per_cell,cell_per_block)
 
 # Make a heatmap
-heatmap_img = np.zeros_like(test_img1[:,:,0])
+heatmap_img_test = np.zeros_like(test_img1[:,:,0])
 
-Heatmap_img = add_heat(heatmap_img,hot_windows)
-plt.imshow(heatmap_img,cmap='hot')
+heatmap_img_test = add_heat(heatmap_img_test,hot_windows)
+plt.imshow(heatmap_img_test,cmap='hot')
+plt.savefig('./examples/'+'heatmap.png')
 
 
-# In[237]:
+# In[24]:
 
 #Filter
 #Apply threshold to filter out the wrong box
-def apply_threshold(heatmap,threshold=2):
+def apply_threshold(heatmap,threshold=1):
     #Zero out pixels below the threshold
     heatmap[heatmap <= threshold] = 0
     return heatmap
 
 
-# In[238]:
+# In[53]:
 
-heatmap_img = apply_threshold(heatmap_img)
-plt.imshow(heatmap_img,cmap='hot')
+heatmap_img_test = apply_threshold(heatmap_img_test,2)
+plt.imshow(heatmap_img_test,cmap='hot')
+plt.savefig('./examples/'+'heatmap_threshod.png')
 
 
-# In[239]:
+# In[26]:
 
 #Appley Scipy Labels to heatmap
-labels = label(heatmap_img)
+labels = label(heatmap_img_test)
 plt.imshow(labels[0],cmap='gray')
 
 
-# In[240]:
+# In[27]:
 
 def draw_labeled_bboxes(img, labels):
     rects = []
@@ -652,46 +630,49 @@ def draw_labeled_bboxes(img, labels):
     return img,rects
 
 
-# In[241]:
+# In[54]:
 
 #Draw bounding box on a copy of the image
-draw_img1,rects= draw_labeled_bboxes(np.copy(test_img1),labels)
-print(draw_img1.dtype)
-plt.imshow(draw_img1)
+draw_img_test,rects= draw_labeled_bboxes(np.copy(test_img1),labels)
+print(draw_img_test.dtype)
+plt.imshow(draw_img_test)
+plt.savefig('./examples/'+'detection.png')
 
 
-# In[242]:
+# In[29]:
 
 #Define a process function,put all the pipeline together
 def process(img):
     float_img = img.astype(np.float32)/255
     # Note that img must be float type
-    hot_windows,all_windows = search_all_scales(float_img,classifier=svc)
-    
+    hot_windows_process,all_windows_process = search_all_scales(float_img,svc,scaler,
+                                            color_space,spatial_size,hist_bins,orient,pix_per_cell,cell_per_block)
+    print('len of hot windows:',len(hot_windows_process))
     heatmap_img = np.zeros_like(img[:,:,0])
-    heatmap_img = add_heat(heatmap_img,hot_windows)
+    heatmap_img = add_heat(heatmap_img,hot_windows_process)
     heatmap_img = apply_threshold(heatmap_img,2)
     labels = label(heatmap_img)
-    draw_img1,rects= draw_labeled_bboxes(np.copy(img),labels)
-    return draw_img1
+    img_process,rects= draw_labeled_bboxes(np.copy(img),labels)
+    return img_process
     
 
 
-# In[243]:
+# In[55]:
 
 #Test process funtion
 test_imgs = glob.glob('./test_images/*.jpg')
-
-test_img1 = mpimage.imread(test_imgs[0])
+print(color_space,spatial_size,hist_bins,orient,pix_per_cell,cell_per_block)
+test_img1 = mpimage.imread(test_imgs[5])
 
 # test_img_float = test_img1.astype(np.float32)/255
 # Process input image is uint8 type,insice Process image is converted to float type
 print(test_img1.dtype)
 detect_img = process(test_img1)
 plt.imshow(detect_img)
+plt.savefig('./examples/'+'detection.png')
 
 
-# In[244]:
+# In[56]:
 
 test_imgs = glob.glob('./test_images/*.jpg')
 fig,axs = plt.subplots(3,2,figsize=(16,8))
@@ -700,11 +681,13 @@ axs = axs.ravel()
 
 for i in np.arange(len(test_imgs)):
     img = mpimage.imread(test_imgs[i])
-    axs[i].imshow(process(img))
+    draw_img_process = process(img)
+    axs[i].imshow(draw_img_process)
     axs[i].axis('off')
+plt.savefig('./examples/'+'some_results.png')
 
 
-# In[245]:
+# In[32]:
 
 #Process video through the pipeline
 # one frame at a time with taking previous frames into account
@@ -718,7 +701,7 @@ clip_out = clip.fl_image(process)
 get_ipython().magic('time clip_out.write_videofile(out_filename,audio=False)')
 
 
-# In[253]:
+# In[33]:
 
 #Define a class to store previous detection results
 # all these results can be used toghther to improve detection stablity.
@@ -730,19 +713,20 @@ class vehicle_detect():
         
     def add_rects(self,rects):
         self.prev_rects.append(rects)
-        if len(self.prev_rects) > 15:
+        if len(self.prev_rects) > 8:
             #Throw out oldest rectangles,Like a quene data structure
             self.prev_rects = self.prev_rects[len(self.prev_rects)-15:]
         
 
 
-# In[254]:
+# In[34]:
 
 #Define process_video function for process on video image
 def process_video(img):
     float_img = img.astype(np.float32)/255
     # Note that img must be float type
-    hot_windows,all_windows = search_all_scales(float_img,classifier=svc)
+    hot_windows_process,all_windows_process = search_all_scales(float_img,svc,scaler,
+                                            color_space,spatial_size,hist_bins,orient,pix_per_cell,cell_per_block)
     
     #     heatmap_img = np.zeros_like(img[:,:,0])
     #     heatmap_img = add_heat(heatmap_img,hot_windows)
@@ -751,15 +735,17 @@ def process_video(img):
     #     draw_img1,rects= draw_labeled_bboxes(np.copy(img),labels)
     
     if len(hot_windows) > 0:
-        detec.add_rects(hot_windows)
+        detec.add_rects(hot_windows_process)
     
     #define heatmap
     heatmap_img = np.zeros_like(img[:,:,0])
     #add heat to heatmap_img,ie.add one to pixels in rects
     for rects in detec.prev_rects:
         heatmap_img = add_heat(heatmap_img,rects)
+    
     # Apply threshold to heatmap_img to filter out rects that appear rarely 
-    heatmap_img = apply_threshold(heatmap_img,1+len(detec.prev_rects)//2)
+    # heatmap_img = apply_threshold(heatmap_img,1+len(detec.prev_rects)//2)
+    heatmap_img = apply_threshold(heatmap_img,len(detec.prev_rects))
     
     labels = label(heatmap_img)
     draw_img,rects = draw_labeled_bboxes(np.copy(img),labels)
@@ -771,7 +757,7 @@ def process_video(img):
     
 
 
-# In[248]:
+# In[35]:
 
 detec = vehicle_detect()
 input_video = './test_video.mp4'
@@ -781,7 +767,7 @@ clip_test_out = clip_test.fl_image(process_video)
 get_ipython().magic('time clip_test_out.write_videofile(out_filename,audio=False)')
 
 
-# In[251]:
+# In[139]:
 
 HTML("""
 <video width='720' height='540' controls>
@@ -790,7 +776,7 @@ HTML("""
 """.format(out_filename))
 
 
-# In[255]:
+# In[36]:
 
 #Process the project video
 proj_video = './project_video.mp4'
@@ -800,7 +786,7 @@ clip_proj_out = clip_proj.fl_image(process_video)
 get_ipython().magic('time clip_proj_out.write_videofile(proj_outfile,audio=False)')
 
 
-# In[ ]:
+# In[120]:
 
 HTML("""
 <video width='720' height='540' controls>
